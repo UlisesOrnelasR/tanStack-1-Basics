@@ -1,22 +1,51 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, notFound, useRouter } from "@tanstack/react-router";
 import SkillCard from "#/components/SkillCard";
 
-export const Route = createFileRoute("/")({ component: App });
+const POKEMON_API_URL = "https://pokeapi.co/api/v2/pokemon"
+
+export const Route = createFileRoute("/")({
+	 component: App,
+	 pendingComponent: ()=> (<div className="p-14 text-center">Loading pokemon...</div>),
+	 pendingMs: 300,
+	 loader: async () => {
+		const response = await fetch (POKEMON_API_URL)
+		const data = await response.json()
+		if(!data.results || data.results.lenght === 0){
+		throw notFound()
+		}
+		console.log("loader",data);
+		return data
+	 },
+	 errorComponent: ({error})=> {
+		const router = useRouter();
+		return (
+			<div className="p-14 text-red-500"><p>Ups! Error {error.message}!</p>
+			<button onClick={()=> router.invalidate()}>Try again</button>
+			</div>
+		)
+	 },
+	 notFoundComponent: ()=> {
+		return (
+			<div className="p-14 text-green-500">
+				Nothing found here!
+			</div>
+		)
+	 }
+	})
 
 function App() {
+	const data = Route.useLoaderData();
+
 	return (
 		<main className="page-wrap px-4 pb-8 pt-14">
-			<h1>Hello world</h1>
+			<h1>Hello World from Tanstack</h1>
+
 			<ul className="mt-6 list-none p-0 space-y-5">
-				<li>
-					<SkillCard name="Tanstack Start" />
-				</li>
-				<li>
-					<SkillCard name="TypeScript" />
-				</li>
-				<li>
-					<SkillCard name="MongoDB" />
-				</li>
+				{data.results.map((pokemon: { name: string }) => (
+					<li key={pokemon.name}>
+						<SkillCard name={pokemon.name} />
+					</li>
+				))}
 			</ul>
 		</main>
 	);
