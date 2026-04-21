@@ -14,6 +14,8 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SkillsIndexRouteImport } from './routes/skills/index'
 import { Route as SkillsNewRouteImport } from './routes/skills/new'
+import { Route as SkillsSkillIdRouteImport } from './routes/skills/$skillId'
+import { Route as UsersUserNameSkillsSkillIdRouteImport } from './routes/users/$userName/skills/$skillId'
 
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
@@ -40,43 +42,84 @@ const SkillsNewRoute = SkillsNewRouteImport.update({
   path: '/skills/new',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SkillsSkillIdRoute = SkillsSkillIdRouteImport.update({
+  id: '/skills/$skillId',
+  path: '/skills/$skillId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UsersUserNameSkillsSkillIdRoute =
+  UsersUserNameSkillsSkillIdRouteImport.update({
+    id: '/users/$userName/skills/$skillId',
+    path: '/users/$userName/skills/$skillId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
+  '/skills/$skillId': typeof SkillsSkillIdRoute
   '/skills/new': typeof SkillsNewRoute
   '/skills/': typeof SkillsIndexRoute
+  '/users/$userName/skills/$skillId': typeof UsersUserNameSkillsSkillIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
+  '/skills/$skillId': typeof SkillsSkillIdRoute
   '/skills/new': typeof SkillsNewRoute
   '/skills': typeof SkillsIndexRoute
+  '/users/$userName/skills/$skillId': typeof UsersUserNameSkillsSkillIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
+  '/skills/$skillId': typeof SkillsSkillIdRoute
   '/skills/new': typeof SkillsNewRoute
   '/skills/': typeof SkillsIndexRoute
+  '/users/$userName/skills/$skillId': typeof UsersUserNameSkillsSkillIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/contact' | '/skills/new' | '/skills/'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/contact'
+    | '/skills/$skillId'
+    | '/skills/new'
+    | '/skills/'
+    | '/users/$userName/skills/$skillId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/contact' | '/skills/new' | '/skills'
-  id: '__root__' | '/' | '/about' | '/contact' | '/skills/new' | '/skills/'
+  to:
+    | '/'
+    | '/about'
+    | '/contact'
+    | '/skills/$skillId'
+    | '/skills/new'
+    | '/skills'
+    | '/users/$userName/skills/$skillId'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/contact'
+    | '/skills/$skillId'
+    | '/skills/new'
+    | '/skills/'
+    | '/users/$userName/skills/$skillId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   ContactRoute: typeof ContactRoute
+  SkillsSkillIdRoute: typeof SkillsSkillIdRoute
   SkillsNewRoute: typeof SkillsNewRoute
   SkillsIndexRoute: typeof SkillsIndexRoute
+  UsersUserNameSkillsSkillIdRoute: typeof UsersUserNameSkillsSkillIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -116,6 +159,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SkillsNewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/skills/$skillId': {
+      id: '/skills/$skillId'
+      path: '/skills/$skillId'
+      fullPath: '/skills/$skillId'
+      preLoaderRoute: typeof SkillsSkillIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/users/$userName/skills/$skillId': {
+      id: '/users/$userName/skills/$skillId'
+      path: '/users/$userName/skills/$skillId'
+      fullPath: '/users/$userName/skills/$skillId'
+      preLoaderRoute: typeof UsersUserNameSkillsSkillIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -123,8 +180,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   ContactRoute: ContactRoute,
+  SkillsSkillIdRoute: SkillsSkillIdRoute,
   SkillsNewRoute: SkillsNewRoute,
   SkillsIndexRoute: SkillsIndexRoute,
+  UsersUserNameSkillsSkillIdRoute: UsersUserNameSkillsSkillIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
