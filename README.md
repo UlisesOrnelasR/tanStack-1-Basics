@@ -1,26 +1,31 @@
-# TanStack Basics
+# 🌊 TanStack Basics
 
-Personal reference project for learning TanStack Start fundamentals. Based on the tutorial by [Jack Herrington](https://www.youtube.com/watch?v=Ua__7-x6MWs&t=913s).
-
-## Stack
-
-- **[TanStack Start](https://tanstack.com/start)** — full-stack React framework with SSR
-- **[TanStack Router](https://tanstack.com/router)** — type-safe, file-based routing
-- **[Tailwind CSS v4](https://tailwindcss.com/)** — utility-first styling
-- **[Biome](https://biomejs.dev/)** — linter + formatter (replaces ESLint + Prettier)
-- **[Clerk](https://clerk.com/)** — authentication
-- **[PostHog](https://posthog.com/)** — analytics
+> Personal reference project for learning TanStack Start fundamentals.
+> Based on the tutorial by [Jack Herrington](https://www.youtube.com/watch?v=Ua__7-x6MWs&t=913s).
 
 ---
 
-## Getting Started
+## 🧱 Stack
+
+| Tool | Role |
+|------|------|
+| 🚀 [TanStack Start](https://tanstack.com/start) | Full-stack React framework with SSR |
+| 🗺️ [TanStack Router](https://tanstack.com/router) | Type-safe, file-based routing |
+| 🎨 [Tailwind CSS v4](https://tailwindcss.com/) | Utility-first styling |
+| 🦊 [Biome](https://biomejs.dev/) | Linter + formatter (replaces ESLint + Prettier) |
+| 🔐 [Clerk](https://clerk.com/) | Authentication |
+| 📊 [PostHog](https://posthog.com/) | Analytics |
+
+---
+
+## ⚡ Getting Started
 
 ```bash
 npm install
 npm run dev
 ```
 
-### Environment Variables
+### 🔑 Environment Variables
 
 Create a `.env.local` file:
 
@@ -31,26 +36,35 @@ VITE_POSTHOG_KEY=your_posthog_key
 
 ---
 
-## Biome
+## 🦊 Biome
 
-Biome replaces both ESLint and Prettier in a single tool — one config, one install, much faster.
+Biome replaces both ESLint and Prettier in a **single tool** — one config, one install, much faster.
+
+```
+  ESLint  +  Prettier  +  import-sort
+      ↓           ↓             ↓
+  ┌────────────────────────────────┐
+  │            🦊 Biome            │
+  │    lint  +  format  +  check  │
+  └────────────────────────────────┘
+```
 
 ```json
 // biome.json
 {
   "formatter": {
     "enabled": true,
-    "indentStyle": "tab" // tabs, not spaces
+    "indentStyle": "tab"         // tabs, not spaces
   },
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true // opinionated defaults, good starting point
+      "recommended": true        // opinionated defaults, good starting point
     }
   },
   "javascript": {
     "formatter": {
-      "quoteStyle": "double" // enforce double quotes
+      "quoteStyle": "double"     // enforce double quotes
     }
   },
   "files": {
@@ -62,36 +76,48 @@ Biome replaces both ESLint and Prettier in a single tool — one config, one ins
 }
 ```
 
-Key scripts:
+### 🛠️ Key Scripts
 
-```bash
-npm run lint     # check for code issues
-npm run format   # auto-format files
-npm run check    # lint + format together (use this one)
-```
+| Command | What it does |
+|---------|-------------|
+| `npm run lint` | 🔍 Check for code issues |
+| `npm run format` | ✨ Auto-format files |
+| `npm run check` | ✅ Lint + format together **(use this one)** |
 
-> The `assist.actions.source.organizeImports: "on"` setting auto-sorts imports on save in supported editors.
+> 💡 The `assist.actions.source.organizeImports: "on"` setting auto-sorts imports on save in supported editors.
 
 ---
 
-## Components & Style
+## 🎨 Components & Style
 
-### Design Tokens
+### 🎨 Design Tokens
 
-The design system lives entirely in `src/styles.css` as CSS custom properties. This makes dark mode trivial — swap the variables, everything updates.
+The design system lives entirely in `src/styles.css` as CSS custom properties. Swap the variables → everything updates.
+
+```
+☀️ Light Mode                          🌙 Dark Mode
+─────────────────────                  ─────────────────────
+--sea-ink:      #173a40  ←──────────→  --sea-ink:     #d7ece8
+--sea-ink-soft: #416166  ←──────────→  (lighter tones)
+--lagoon:       #4fb8b2  ←──────────→  --lagoon:      #4fb8b2
+--bg-base:      #e7f3ec  ←──────────→  --bg-base:     #0a1418
+--surface:      rgba(255,255,255,.74)   --surface:     rgba(16,30,34,.8)
+```
 
 ```css
-/* Light mode (default) */
+/* src/styles.css */
+
+/* ☀️ Light mode (default) */
 :root {
-  --sea-ink: #173a40; /* primary text */
-  --sea-ink-soft: #416166; /* secondary text */
-  --lagoon: #4fb8b2; /* brand accent */
+  --sea-ink: #173a40;              /* primary text */
+  --sea-ink-soft: #416166;         /* secondary text */
+  --lagoon: #4fb8b2;               /* brand accent */
   --surface: rgba(255, 255, 255, 0.74);
   --line: rgba(23, 58, 64, 0.14);
   --bg-base: #e7f3ec;
 }
 
-/* Dark mode — same variables, different values */
+/* 🌙 Dark mode — same variables, different values */
 :root[data-theme="dark"] {
   --sea-ink: #d7ece8;
   --bg-base: #0a1418;
@@ -100,10 +126,12 @@ The design system lives entirely in `src/styles.css` as CSS custom properties. T
 }
 ```
 
-The theme is resolved **before paint** via an inline script in `__root.tsx` to avoid flash of wrong theme (FOWT):
+#### ⚡ No Flash of Wrong Theme (FOWT)
+
+Theme is resolved **before paint** via an inline script in `__root.tsx`:
 
 ```tsx
-// src/routes/__root.tsx
+// runs synchronously before <HeadContent /> — no theme flash
 const THEME_INIT_SCRIPT = `(function(){
   var stored = window.localStorage.getItem('theme');
   var mode = (stored === 'light' || stored === 'dark' || stored === 'auto') ? stored : 'auto';
@@ -112,25 +140,30 @@ const THEME_INIT_SCRIPT = `(function(){
   document.documentElement.classList.add(resolved);
 })();`
 
-// injected before <HeadContent /> so it runs synchronously
 <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
 ```
 
-### Utility Classes
+---
+
+### 🧩 Utility Classes
 
 Reusable classes defined in `styles.css` and consumed via Tailwind:
 
-| Class            | Purpose                                  |
-| ---------------- | ---------------------------------------- |
-| `.page-wrap`     | Centered content, max-width 1080px       |
-| `.island-shell`  | Glass-morphism card with border + shadow |
-| `.feature-card`  | Hover-animated card variant              |
-| `.island-kicker` | Uppercase label above headings           |
-| `.display-title` | Serif font (Fraunces) for hero titles    |
+| Class | Purpose |
+|-------|---------|
+| 📐 `.page-wrap` | Centered content, max-width 1080px |
+| 🪟 `.island-shell` | Glass-morphism card with border + shadow |
+| ✨ `.feature-card` | Hover-animated card variant |
+| 🏷️ `.island-kicker` | Uppercase label above headings |
+| 🖋️ `.display-title` | Serif font (Fraunces) for hero titles |
 
-### SkillCard Component
+> 💡 **Tailwind v4 syntax**: `text-(--sea-ink-soft)` and `border-(--line)` reference CSS custom properties directly — no need to declare them in `tailwind.config`.
 
-A real component from the project showing typed props and local state:
+---
+
+### 🃏 SkillCard Component
+
+A real component from the project — typed props, local state, and design tokens in action:
 
 ```tsx
 // src/components/SkillCard.tsx
@@ -168,41 +201,54 @@ const SkillCard = ({ name }: SkillCardProps) => {
 };
 ```
 
-> **Tailwind v4 syntax**: `text-(--sea-ink-soft)` and `border-(--line)` reference CSS custom properties directly — no need to declare them in `tailwind.config`.
-
 ---
 
-## Routing
+## 🗺️ Routing
 
 TanStack Router uses **file-based routing** — the file path IS the route. No config needed.
 
 ```
 src/routes/
-├── __root.tsx                        → layout wrapping all routes
-├── index.tsx                         → /
-├── about.tsx                         → /about
-├── contact.tsx                       → /contact
-├── skills/
-│   ├── index.tsx                     → /skills
-│   ├── new.tsx                       → /skills/new
-│   └── $skillId.tsx                  → /skills/:skillId  (dynamic)
-├── users/
-│   └── $userName/
-│       └── skills/
-│           └── $skillId.tsx          → /users/:userName/skills/:skillId
-└── dashboard/
-    ├── route.tsx                     → /dashboard  (layout route)
-    ├── index.tsx                     → /dashboard/
-    ├── skills.tsx                    → /dashboard/skills
-    └── settings.tsx                  → /dashboard/settings
+│
+├── 🏠 __root.tsx                      →  layout wrapping ALL routes
+├── 📄 index.tsx                       →  /
+├── 📄 about.tsx                       →  /about
+├── 📄 contact.tsx                     →  /contact
+│
+├── 📁 skills/
+│   ├── 📄 index.tsx                   →  /skills
+│   ├── 📄 new.tsx                     →  /skills/new
+│   └── 📄 $skillId.tsx                →  /skills/:skillId       💠 dynamic
+│
+├── 📁 users/
+│   └── 📁 $userName/
+│       └── 📁 skills/
+│           └── 📄 $skillId.tsx        →  /users/:userName/skills/:skillId  💠💠 multi-param
+│
+└── 📁 dashboard/
+    ├── 🏗️  route.tsx                  →  /dashboard             🧱 layout route
+    ├── 📄 index.tsx                   →  /dashboard/
+    ├── 📄 skills.tsx                  →  /dashboard/skills
+    └── 📄 settings.tsx                →  /dashboard/settings
 ```
 
-### Static Routes
+### 📌 Route Types at a Glance
 
-Every route file exports a `Route` constant created with `createFileRoute`. The path string must exactly match the file path.
+| File | Symbol | Behavior |
+|------|--------|----------|
+| `index.tsx` | 📄 | Static route — exact URL match |
+| `$param.tsx` | 💠 | Dynamic segment — captures URL value |
+| `route.tsx` | 🧱 | Layout route — wraps child routes with shared UI |
+| `__root.tsx` | 🏠 | Root layout — wraps the entire app |
+
+---
+
+### 📄 Static Routes
+
+Every route file exports a `Route` created with `createFileRoute`. The path must match the file path exactly.
 
 ```tsx
-// src/routes/about.tsx
+// src/routes/about.tsx  →  /about
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/about")({
@@ -223,38 +269,42 @@ function About() {
 }
 ```
 
-### Dynamic Routes — Single Param
+---
+
+### 💠 Dynamic Routes — Single Param
 
 Files prefixed with `$` become dynamic segments. Access params via `Route.useParams()`.
 
 ```tsx
-// src/routes/skills/$skillId.tsx  →  /skills/typescript, /skills/react, etc.
-import { createFileRoute } from "@tanstack/react-router";
+// src/routes/skills/$skillId.tsx
+// 💠 matches: /skills/typescript  /skills/react  /skills/go ...
 
 export const Route = createFileRoute("/skills/$skillId")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { skillId } = Route.useParams();
+  const { skillId } = Route.useParams(); // 👈 fully type-safe
   return <div>Skill: {skillId}</div>;
 }
 ```
 
-### Dynamic Routes — Multiple Params
+---
 
-Nest folders with `$` to capture multiple segments:
+### 💠💠 Dynamic Routes — Multiple Params
+
+Nest `$` folders to capture multiple segments:
 
 ```tsx
 // src/routes/users/$userName/skills/$skillId.tsx
-// → /users/ulises/skills/typescript
+// 💠💠 matches: /users/ulises/skills/typescript
 
 export const Route = createFileRoute("/users/$userName/skills/$skillId")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { userName, skillId } = Route.useParams();
+  const { userName, skillId } = Route.useParams(); // 👈 both params, type-safe
   return (
     <div>
       <p>User: {userName}</p>
@@ -264,9 +314,20 @@ function RouteComponent() {
 }
 ```
 
-### Layout Routes (Shared UI)
+---
 
-`route.tsx` inside a folder creates a **layout route** — a persistent shell with a sidebar, header, etc. Child routes render inside `<Outlet />`.
+### 🧱 Layout Routes (Shared UI)
+
+`route.tsx` inside a folder creates a **layout route** — a persistent shell (sidebar, header, etc.) that wraps all child routes via `<Outlet />`.
+
+```
+🌐 Browser
+└── 🏠 __root.tsx             (always mounted)
+    └── 🧱 dashboard/route.tsx (always mounted for /dashboard/*)
+        ├── 📄 dashboard/index.tsx       ← renders in <Outlet />
+        ├── 📄 dashboard/skills.tsx      ← renders in <Outlet />
+        └── 📄 dashboard/settings.tsx   ← renders in <Outlet />
+```
 
 ```tsx
 // src/routes/dashboard/route.tsx  →  wraps /dashboard/*
@@ -280,22 +341,23 @@ function RouteComponent() {
   return (
     <main>
       <aside>
-        <p>Sidebar</p> {/* always visible on all /dashboard routes */}
+        <p>Sidebar</p>     {/* 🔒 always visible on ALL /dashboard routes */}
       </aside>
       <section>
-        <Outlet />{" "}
-        {/* dashboard/index.tsx, dashboard/skills.tsx, etc. render here */}
+        <Outlet />         {/* 📺 child routes render here */}
       </section>
     </main>
   );
 }
 ```
 
-Child routes under `dashboard/` (like `index.tsx`, `skills.tsx`) render into the `<Outlet />` without re-mounting the layout.
+> ✅ Child routes render into `<Outlet />` **without re-mounting the layout** — the sidebar stays mounted while navigating between `/dashboard/skills` and `/dashboard/settings`.
 
-### Root Layout
+---
 
-`__root.tsx` is the top-level layout that wraps the entire app. It sets up the HTML shell, global providers, and devtools.
+### 🏠 Root Layout
+
+`__root.tsx` is the top-level layout wrapping the entire app — HTML shell, global providers, devtools.
 
 ```tsx
 // src/routes/__root.tsx
@@ -318,7 +380,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <ClerkProvider>
-          {children} {/* every route renders here */}
+          {children}   {/* 🌍 every route in the app renders here */}
         </ClerkProvider>
         <Scripts />
       </body>
@@ -327,25 +389,27 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 }
 ```
 
-### Router Config
+---
+
+### ⚙️ Router Config
 
 The router is created in `src/router.tsx` and registered globally for full type inference:
 
 ```tsx
 // src/router.tsx
 import { createRouter as createTanStackRouter } from "@tanstack/react-router";
-import { routeTree } from "./routeTree.gen"; // auto-generated, never edit manually
+import { routeTree } from "./routeTree.gen"; // 🤖 auto-generated, never edit manually
 
 export function getRouter() {
   return createTanStackRouter({
     routeTree,
     scrollRestoration: true,
-    defaultPreload: "intent", // preload on hover/focus
+    defaultPreload: "intent",    // 👆 preload on hover/focus
     defaultPreloadStaleTime: 0,
   });
 }
 
-// global type registration — gives you autocomplete on <Link to="..." />
+// 🔒 global type registration — autocomplete on <Link to="..." />
 declare module "@tanstack/react-router" {
   interface Register {
     router: ReturnType<typeof getRouter>;
@@ -353,11 +417,11 @@ declare module "@tanstack/react-router" {
 }
 ```
 
-> `routeTree.gen.ts` is auto-generated by the TanStack Router Vite plugin whenever you add or rename a route file. Never edit it manually.
+> 🤖 `routeTree.gen.ts` is auto-generated by the TanStack Router Vite plugin whenever you add or rename a route file. **Never edit it manually.**
 
 ---
 
-## Data Fetching
+## 📡 Data Fetching
 
 TanStack Router has **built-in data fetching via loaders** — no `useEffect`, no `useState`, no manual loading flags. The data is fetched **before** the component renders, so the component always receives ready data.
 
@@ -368,22 +432,22 @@ TanStack Router has **built-in data fetching via loaders** — no `useEffect`, n
 ### 🔄 The Loader Lifecycle
 
 ```
-User navigates to "/"
-        │
-        ▼
-┌───────────────────────────────────────────┐
-│         createFileRoute("/")              │
-│                                           │
-│  ① loader() runs  ──────────────────────►  fetch("https://pokeapi.co/api/v2/pokemon")
-│         │                                 │
-│         ▼                                 │
-│  ② What happened?                         │
-│                                           │
-│   ✅ Success ──────► component()          │
-│   ⏳ Still loading ► pendingComponent()   │
-│   💥 Error ─────────► errorComponent()   │
-│   🔍 Not found ─────► notFoundComponent() │
-└───────────────────────────────────────────┘
+👤 User navigates to "/"
+          │
+          ▼
+┌─────────────────────────────────────────────────────┐
+│              createFileRoute("/")                   │
+│                                                     │
+│  ① loader() runs ──────────────────────────────────► 🌐 fetch(POKEMON_API_URL)
+│          │                                          │
+│          ▼                                          │
+│   ② What happened?                                  │
+│                                                     │
+│   ✅  data returned    ──────► component()          │
+│   ⏳  still loading    ──────► pendingComponent()   │
+│   💥  threw Error      ──────► errorComponent()     │
+│   🔍  threw notFound() ──────► notFoundComponent()  │
+└─────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -395,23 +459,24 @@ User navigates to "/"
 const POKEMON_API_URL = "https://pokeapi.co/api/v2/pokemon";
 
 export const Route = createFileRoute("/")({
-  // ① fetch data before the component renders
+
+  // ① 🌐 fetch data BEFORE the component renders
   loader: async () => {
     const response = await fetch(POKEMON_API_URL);
     const data = await response.json();
     if (!data.results || data.results.length === 0) {
-      throw notFound(); // 🔍 redirect to notFoundComponent
+      throw notFound();  // 🔍 triggers notFoundComponent
     }
-    return data; // ✅ handed to the component
+    return data;         // ✅ handed directly to the component
   },
 
-  // ② shown after 300ms of loading (avoids flash for fast connections)
+  // ② ⏳ shown while loading (only after 300ms — avoids flash on fast connections)
   pendingMs: 300,
   pendingComponent: () => (
     <div className="p-14 text-center">Loading pokemon...</div>
   ),
 
-  // ③ shown when loader throws a regular Error
+  // ③ 💥 shown when loader throws a regular Error
   errorComponent: ({ error }) => {
     const router = useRouter();
     return (
@@ -422,12 +487,12 @@ export const Route = createFileRoute("/")({
     );
   },
 
-  // ④ shown when loader throws notFound()
+  // ④ 🔍 shown when loader throws notFound()
   notFoundComponent: () => (
     <div className="p-14 text-green-500">Nothing found here!</div>
   ),
 
-  component: App,
+  component: App,  // ✅ only reached when loader succeeds
 });
 ```
 
@@ -435,12 +500,11 @@ export const Route = createFileRoute("/")({
 
 ### 📦 Consuming the Data — `useLoaderData`
 
-Once the loader resolves, access the data with `Route.useLoaderData()`. It's **fully type-safe** — TypeScript infers the return type of your loader automatically.
+Once the loader resolves, access the data with `Route.useLoaderData()`. TypeScript infers the return type of your loader automatically — zero manual typing needed.
 
 ```tsx
 function App() {
-  // ✅ type-safe — TypeScript knows the shape of `data`
-  const data = Route.useLoaderData();
+  const data = Route.useLoaderData(); // ✅ fully type-safe
 
   return (
     <main className="page-wrap px-4 pb-8 pt-14">
@@ -462,20 +526,20 @@ function App() {
 
 ### 🗺️ Route Options Cheat Sheet
 
-| Option | Type | When it shows |
-|--------|------|--------------|
-| `loader` | `async () => data` | Always — runs before render |
-| `pendingComponent` | `() => JSX` | While loader is running (after `pendingMs`) |
-| `pendingMs` | `number` (ms) | Delay before showing pending UI |
-| `errorComponent` | `({ error }) => JSX` | When loader throws a regular `Error` |
-| `notFoundComponent` | `() => JSX` | When loader throws `notFound()` |
-| `component` | `() => JSX` | When loader resolves successfully ✅ |
+| Option | Type | When it activates |
+|--------|------|-------------------|
+| `loader` | `async () => data` | ⚡ Always — runs before render |
+| `pendingComponent` | `() => JSX` | ⏳ While loading (after `pendingMs` delay) |
+| `pendingMs` | `number` (ms) | 🕐 How long to wait before showing pending UI |
+| `errorComponent` | `({ error }) => JSX` | 💥 When loader throws a regular `Error` |
+| `notFoundComponent` | `() => JSX` | 🔍 When loader throws `notFound()` |
+| `component` | `() => JSX` | ✅ When loader resolves successfully |
 
 ---
 
 ### 🔁 Error Recovery — `router.invalidate()`
 
-When the loader fails, the `errorComponent` receives the error. To let the user retry, call `router.invalidate()` — it re-runs the loader for the current route.
+When the loader fails, `errorComponent` receives the error. Call `router.invalidate()` to re-run the loader and let the user retry.
 
 ```tsx
 errorComponent: ({ error }) => {
@@ -493,16 +557,16 @@ errorComponent: ({ error }) => {
 ```
 
 ```
-User clicks "Try again"
-        │
-        ▼
-  router.invalidate()
-        │
-        ▼
-  loader() runs again
-        │
-   ┌────┴────┐
-   ✅         💥
+👤 User clicks "Try again"
+          │
+          ▼
+   router.invalidate()
+          │
+          ▼
+    loader() runs again
+          │
+     ┌────┴────┐
+     ✅         💥
 component   errorComponent
 ```
 
@@ -510,10 +574,28 @@ component   errorComponent
 
 ### 🧠 Why in the Route — Not in the Component?
 
+```
+❌ useEffect approach                ✅ loader approach
+──────────────────                   ──────────────────
+  component mounts                     loader runs
+       │                                    │
+       ▼                                    ▼
+  renders empty                       data arrives
+       │                                    │
+       ▼                                    ▼
+  fetch starts                        component mounts
+       │                              (with full data)
+       ▼
+  data arrives
+       │
+       ▼
+  re-renders with data
+```
+
 | Approach | Fetching happens | Component renders |
 |----------|-----------------|-------------------|
-| `useEffect` ❌ | After render | With empty data → then re-renders |
-| `loader` ✅ | Before render | With full data, always |
+| `useEffect` ❌ | After render | Empty first → re-renders with data |
+| `loader` ✅ | Before render | Always has full data from the start |
 
 With loaders, there's **no loading state inside the component** — by the time the component exists, the data is already there. The pending/error/notFound states live at the route level, keeping components simple and pure.
 
