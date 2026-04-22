@@ -5,6 +5,20 @@
 
 ---
 
+## 📋 Table of Contents
+
+| | Section |
+|-|---------|
+| 🧱 | [Stack](#-stack) |
+| ⚡ | [Getting Started](#-getting-started) |
+| 📁 | [Project Structure](#-project-structure) |
+| 🦊 | [Biome](#-biome) |
+| 🎨 | [Components & Style](#-components--style) |
+| 🗺️ | [Routing](#️-routing) |
+| 📡 | [Data Fetching](#-data-fetching) |
+
+---
+
 ## 🧱 Stack
 
 | Tool | Role |
@@ -33,6 +47,52 @@ Create a `.env.local` file:
 VITE_CLERK_PUBLISHABLE_KEY=your_clerk_key
 VITE_POSTHOG_KEY=your_posthog_key
 ```
+
+---
+
+## 📁 Project Structure
+
+```
+tanstack-skilled/
+│
+├── 📁 src/
+│   ├── 📁 routes/              🗺️  file-based routing — each file = a URL
+│   │   ├── 🏠 __root.tsx       →   root layout (HTML shell, providers)
+│   │   ├── 📄 index.tsx        →   /
+│   │   ├── 📄 about.tsx        →   /about
+│   │   ├── 📄 contact.tsx      →   /contact
+│   │   ├── 📁 skills/
+│   │   │   ├── 📄 index.tsx    →   /skills
+│   │   │   ├── 📄 new.tsx      →   /skills/new
+│   │   │   └── 💠 $skillId.tsx →   /skills/:skillId
+│   │   ├── 📁 users/
+│   │   │   └── 📁 $userName/
+│   │   │       └── 📁 skills/
+│   │   │           └── 💠 $skillId.tsx → /users/:userName/skills/:skillId
+│   │   └── 📁 dashboard/
+│   │       ├── 🧱 route.tsx    →   /dashboard  (layout)
+│   │       ├── 📄 index.tsx    →   /dashboard/
+│   │       ├── 📄 skills.tsx   →   /dashboard/skills
+│   │       └── 📄 settings.tsx →   /dashboard/settings
+│   │
+│   ├── 📁 components/          🃏  reusable UI components
+│   ├── 📁 integrations/        🔌  Clerk auth, PostHog analytics
+│   ├── 📁 styles/              🎨  design tokens, utility classes
+│   ├── 🤖 routeTree.gen.ts     →   auto-generated — never edit
+│   └── ⚙️  router.tsx          →   router instance + global type registration
+│
+├── 📄 biome.json               🦊  linter + formatter config
+├── 📄 .env.local               🔑  secret keys (not committed)
+└── 📄 vite.config.ts           ⚡  bundler config
+```
+
+| Symbol | Meaning |
+|--------|---------|
+| 🏠 | Root layout — wraps the entire app |
+| 🧱 | Layout route — wraps a section with shared UI |
+| 📄 | Static route — exact URL |
+| 💠 | Dynamic segment — captures a URL value as a param |
+| 🤖 | Auto-generated — never edit manually |
 
 ---
 
