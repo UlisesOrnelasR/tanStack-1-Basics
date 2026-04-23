@@ -831,7 +831,7 @@ Server functions are grouped by domain in `src/server/`. Each file exports named
 
 TanStack Start supports **traditional HTTP API routes** alongside server functions. While server functions are called transparently from your code, API routes expose real HTTP endpoints — consumable by external clients, mobile apps, or third-party services.
 
-> 💡 **The key insight**: API routes live inside `src/routes/api/` and use the same file-based routing system, but export a `server` object with HTTP method handlers instead of a React component.
+> 💡 **The key insight**: any route file can expose a `server` object with HTTP method handlers. The same file can also export a React `component` — so one URL can serve both a browser UI and a raw HTTP endpoint.
 
 ---
 
@@ -848,18 +848,20 @@ TanStack Start supports **traditional HTTP API routes** alongside server functio
 
 ### 🏗️ Defining an API Route
 
-API routes live in `src/routes/api/` and export a `Route` with a `server` key containing method handlers. Each handler receives a standard `Request` and must return a `Response`.
+Add a `server` key to any `createFileRoute` call. Each handler receives a standard `Request` and must return a `Response`.
 
-```ts
-// src/routes/api/hello.ts  →  GET /api/hello
+```tsx
+// src/routes/hello.tsx  →  POST /hello
 import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/api/hello")({
+export const Route = createFileRoute("/hello")({
   server: {
     handlers: {
-      GET: async () => {
+      POST: async ({ request }) => {
+        const body = await request.json();
+
         return Response.json(
-          { message: "Hello world!" },
+          { message: `Hello, ${body.name}` },
           {
             headers: {
               "Cache-Control": "public, s-maxage=60",
@@ -870,23 +872,73 @@ export const Route = createFileRoute("/api/hello")({
       },
     },
   },
+  component: HelloComponent, // 👈 same file can also export a UI
 });
 ```
 
 Key points:
-- **No `component`** — API route files have no UI, just the `server` handler.
-- **`Response.json(body, init)`** — standard Web API. The second argument sets status, headers, etc.
-- **HTTP method as key** — `GET`, `POST`, `PUT`, `DELETE`, etc. Only declared methods are handled; others return 405.
+- **`server.handlers`** — declare each HTTP verb you want to handle (`GET`, `POST`, `PUT`, `DELETE`, etc.). Undeclared methods return 405.
+- **`Response.json(body, init)`** — standard Web API. The second argument sets status, headers, CORS, etc.
+- **Co-location** — `server` and `component` can live in the same file. The browser hit renders the React UI; the POST hit runs the handler.
+
+---
+
+### 🖱️ Calling the Endpoint from the UI
+
+Because the handler lives at the same URL as the route, the component can `fetch` its own path:
+
+```tsx
+function HelloComponent() {
+  const [reply, setReply] = useState("");
+
+  return (
+    <main className="p-10">
+      <button
+        type="button"
+        onClick={() => {
+          fetch("/hello", {            // 👈 same URL as this route
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: "Tanstacker" }),
+          })
+            .then((res) => res.json())
+            .then((data) => setReply(data.message));
+        }}
+      >
+        Say Hello {reply && `- ${reply}`}
+      </button>
+    </main>
+  );
+}
+```
+
+```
+👤 Browser navigates to /hello
+        │
+        ▼
+  component renders (React UI)
+
+👤 User clicks button
+        │
+        ▼
+  fetch POST /hello
+        │
+        ▼
+  server.handlers.POST runs
+        │
+        ▼
+  { message: "Hello, Tanstacker" } returned to client
+```
 
 ---
 
 ### 🗂️ File Structure
 
 ```
-src/routes/api/
-└── 📄 hello.ts    →  GET /api/hello
+src/routes/
+└── 📄 hello.tsx    →  POST /hello  +  UI component
 ```
 
-Add files here following the same file-based routing convention — the path becomes the URL.
+Any route file can expose a `server` object — no special `/api/` folder required. The URL is determined by the file path, same as any other route.
 
 ---
