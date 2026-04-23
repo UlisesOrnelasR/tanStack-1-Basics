@@ -17,6 +17,7 @@
 | 🗺️ | [Routing](#️-routing) |
 | 📡 | [Data Fetching](#-data-fetching) |
 | 🖥️ | [Server Functions](#️-server-functions) |
+| 🌐 | [API Routes](#-api-routes) |
 
 ---
 
@@ -823,5 +824,69 @@ Server functions are grouped by domain in `src/server/`. Each file exports named
 | **Use for** | Initial page data | Mutations, lazy fetches, actions |
 
 > 💡 Use a **loader** when the data is required before the page renders. Use a **server function** when the action is triggered by the user or needs to happen on demand.
+
+---
+
+## 🌐 API Routes
+
+TanStack Start supports **traditional HTTP API routes** alongside server functions. While server functions are called transparently from your code, API routes expose real HTTP endpoints — consumable by external clients, mobile apps, or third-party services.
+
+> 💡 **The key insight**: API routes live inside `src/routes/api/` and use the same file-based routing system, but export a `server` object with HTTP method handlers instead of a React component.
+
+---
+
+### 🔄 Server Functions vs API Routes
+
+| | Server Function | API Route |
+|-|-----------------|-----------|
+| **Caller** | Your own client code | Any HTTP client (external, mobile, etc.) |
+| **Transport** | Abstracted (framework-managed) | Plain HTTP — full control over request/response |
+| **Headers / CORS** | Not exposed | You control them |
+| **Use for** | Internal mutations, loaders | Public APIs, webhooks, external integrations |
+
+---
+
+### 🏗️ Defining an API Route
+
+API routes live in `src/routes/api/` and export a `Route` with a `server` key containing method handlers. Each handler receives a standard `Request` and must return a `Response`.
+
+```ts
+// src/routes/api/hello.ts  →  GET /api/hello
+import { createFileRoute } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/api/hello")({
+  server: {
+    handlers: {
+      GET: async () => {
+        return Response.json(
+          { message: "Hello world!" },
+          {
+            headers: {
+              "Cache-Control": "public, s-maxage=60",
+              "Access-Control-Allow-Origin": "*",  // 👈 CORS — allow any client
+            },
+          },
+        );
+      },
+    },
+  },
+});
+```
+
+Key points:
+- **No `component`** — API route files have no UI, just the `server` handler.
+- **`Response.json(body, init)`** — standard Web API. The second argument sets status, headers, etc.
+- **HTTP method as key** — `GET`, `POST`, `PUT`, `DELETE`, etc. Only declared methods are handled; others return 405.
+
+---
+
+### 🗂️ File Structure
+
+```
+src/routes/api/
+└── 📄 hello.ts    →  GET /api/hello
+```
+
+Add files here following the same file-based routing convention — the path becomes the URL.
 
 ---

@@ -20,6 +20,7 @@ import { Route as SkillsNewRouteImport } from './routes/skills/new'
 import { Route as SkillsSkillIdRouteImport } from './routes/skills/$skillId'
 import { Route as DashboardSkillsRouteImport } from './routes/dashboard/skills'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settings'
+import { Route as ApiHelloRouteImport } from './routes/api/hello'
 import { Route as UsersUserNameSkillsSkillIdRouteImport } from './routes/users/$userName/skills/$skillId'
 
 const FavoriteRoute = FavoriteRouteImport.update({
@@ -77,6 +78,11 @@ const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
+const ApiHelloRoute = ApiHelloRouteImport.update({
+  id: '/api/hello',
+  path: '/api/hello',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UsersUserNameSkillsSkillIdRoute =
   UsersUserNameSkillsSkillIdRouteImport.update({
     id: '/users/$userName/skills/$skillId',
@@ -90,6 +96,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/favorite': typeof FavoriteRoute
+  '/api/hello': typeof ApiHelloRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/skills': typeof DashboardSkillsRoute
   '/skills/$skillId': typeof SkillsSkillIdRoute
@@ -103,6 +110,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/favorite': typeof FavoriteRoute
+  '/api/hello': typeof ApiHelloRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/skills': typeof DashboardSkillsRoute
   '/skills/$skillId': typeof SkillsSkillIdRoute
@@ -118,6 +126,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/favorite': typeof FavoriteRoute
+  '/api/hello': typeof ApiHelloRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/skills': typeof DashboardSkillsRoute
   '/skills/$skillId': typeof SkillsSkillIdRoute
@@ -134,6 +143,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/favorite'
+    | '/api/hello'
     | '/dashboard/settings'
     | '/dashboard/skills'
     | '/skills/$skillId'
@@ -147,6 +157,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/favorite'
+    | '/api/hello'
     | '/dashboard/settings'
     | '/dashboard/skills'
     | '/skills/$skillId'
@@ -161,6 +172,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/favorite'
+    | '/api/hello'
     | '/dashboard/settings'
     | '/dashboard/skills'
     | '/skills/$skillId'
@@ -176,6 +188,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   ContactRoute: typeof ContactRoute
   FavoriteRoute: typeof FavoriteRoute
+  ApiHelloRoute: typeof ApiHelloRoute
   SkillsSkillIdRoute: typeof SkillsSkillIdRoute
   SkillsNewRoute: typeof SkillsNewRoute
   SkillsIndexRoute: typeof SkillsIndexRoute
@@ -261,6 +274,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardSettingsRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
+    '/api/hello': {
+      id: '/api/hello'
+      path: '/api/hello'
+      fullPath: '/api/hello'
+      preLoaderRoute: typeof ApiHelloRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/users/$userName/skills/$skillId': {
       id: '/users/$userName/skills/$skillId'
       path: '/users/$userName/skills/$skillId'
@@ -293,6 +313,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   ContactRoute: ContactRoute,
   FavoriteRoute: FavoriteRoute,
+  ApiHelloRoute: ApiHelloRoute,
   SkillsSkillIdRoute: SkillsSkillIdRoute,
   SkillsNewRoute: SkillsNewRoute,
   SkillsIndexRoute: SkillsIndexRoute,
