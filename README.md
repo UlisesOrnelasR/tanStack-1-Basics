@@ -16,6 +16,7 @@
 | 🎨 | [Components & Style](#-components--style) |
 | 🗺️ | [Routing](#️-routing) |
 | 📡 | [Data Fetching](#-data-fetching) |
+| 🖥️ | [Server Functions](#️-server-functions) |
 
 ---
 
@@ -634,6 +635,8 @@ component   errorComponent
 
 ### 🧠 Why in the Route — Not in the Component?
 
+
+
 ```
 ❌ useEffect approach                ✅ loader approach
 ──────────────────                   ──────────────────
@@ -658,5 +661,167 @@ component   errorComponent
 | `loader` ✅ | Before render | Always has full data from the start |
 
 With loaders, there's **no loading state inside the component** — by the time the component exists, the data is already there. The pending/error/notFound states live at the route level, keeping components simple and pure.
+
+---
+
+## 🖥️ Server Functions
+
+TanStack Start introduces **server functions** — functions that run exclusively on the server, called directly from client code. No API routes, no `/api/` folders, no manual fetch — just a typed function call that crosses the network transparently.
+
+> 💡 **The key insight**: server functions look like regular function calls in your component, but they execute on the server. The framework handles the HTTP layer automatically.
+
+---
+
+### 🔄 How It Works
+
+```
+👤 Component calls savePokemon({ data: name })
+          │
+          ▼
+  useServerFn wraps the call
+          │
+          ▼
+  ┌─────────────────────────────────────────┐
+  │         🖥️  SERVER                      │
+  │   createServerFn handler runs           │
+  │   (can access DB, secrets, fs, etc.)    │
+  └─────────────────────────────────────────┘
+          │
+          ▼
+  Result returned to client
+```
+
+The client never runs the handler code — it's stripped from the client bundle entirely. Only the network call crosses.
+
+---
+
+### 🏗️ Defining a Server Function
+
+Server functions live in `src/server/` and are created with `createServerFn` from `@tanstack/react-start`:
+
+```ts
+// src/server/pokemon.ts
+import { createServerFn } from "@tanstack/react-start";
+
+const POKEMON_API_URL = "https://pokeapi.co/api/v2/pokemon";
+
+// ① GET — no input, returns data
+export const getPokemonFn = createServerFn({
+  method: "GET",
+}).handler(async () => {
+  console.log("Executing a secure database/API call on the server...");
+
+  const response = await fetch(POKEMON_API_URL);
+  const data = await response.json();
+
+  return data; // ✅ serialized and sent to the client
+});
+
+// ② POST — validated input, mutates data
+export const saveFavoritePokemonFn = createServerFn({
+  method: "POST",
+})
+  .inputValidator((name: string) => name)  // 👈 validates & types the input
+  .handler(async ({ data }) => {
+    console.log("Saving data to our secure database...");
+
+    await new Promise((resolve) => setTimeout(resolve, 1500)); // simulate DB write
+    return {
+      success: true,
+      saved: data,
+    };
+  });
+```
+
+| Method | Use case |
+|--------|----------|
+| `"GET"` | Read-only — fetching, querying |
+| `"POST"` | Mutations — saving, updating, deleting |
+
+---
+
+### 📡 GET — Calling from a Loader
+
+The cleanest pattern: call a server fn from the route loader. The data arrives before the component renders.
+
+```tsx
+// src/routes/index.tsx
+import { getPokemonFn } from "#/server/pokemon";
+
+export const Route = createFileRoute("/")({
+  loader: async () => {
+    const data = await getPokemonFn(); // 👈 looks like a local call, runs on server
+    return data;
+  },
+  component: App,
+});
+
+function App() {
+  const data = Route.useLoaderData(); // ✅ typed, always populated
+  // ...
+}
+```
+
+---
+
+### 📮 POST — Calling from a Component with `useServerFn`
+
+For mutations triggered by user interaction (form submit, button click), wrap the server fn with `useServerFn`:
+
+```tsx
+// src/routes/favorite.tsx
+import { useServerFn } from "@tanstack/react-start";
+import { saveFavoritePokemonFn } from "#/server/pokemon";
+
+function Favorite() {
+  const [name, setName] = useState("");
+  const [status, setStatus] = useState("");
+
+  const savePokemon = useServerFn(saveFavoritePokemonFn); // 👈 wrap for client use
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus("Saving...");
+
+    await savePokemon({ data: name }); // 👈 runs on server, typed input
+    setStatus(`Successfully saved ${name}`);
+    setName("");
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input value={name} onChange={(e) => setName(e.target.value)} />
+      <button type="submit">Save</button>
+      <p>{status}</p>
+    </form>
+  );
+}
+```
+
+> ⚠️ **`useServerFn` is required when calling a POST server fn from a component.** Without it, the function won't be properly bound for client-side invocation.
+
+---
+
+### 🗂️ File Structure
+
+```
+src/server/
+└── 📄 pokemon.ts    →  all Pokemon-related server functions
+```
+
+Server functions are grouped by domain in `src/server/`. Each file exports named functions imported directly into routes or components.
+
+---
+
+### ⚡ Server Functions vs Loaders
+
+| | Loader | Server Function |
+|-|--------|-----------------|
+| **When** | Before render (route transition) | Any time (user interaction, on demand) |
+| **Direction** | Always read | Read or write |
+| **Called from** | Route config | Loader or component |
+| **Use for** | Initial page data | Mutations, lazy fetches, actions |
+
+> 💡 Use a **loader** when the data is required before the page renders. Use a **server function** when the action is triggered by the user or needs to happen on demand.
 
 ---
